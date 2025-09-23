@@ -20,221 +20,229 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-        const SUPABASE_URL = 'https://zzqftqssuqueegchzajs.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6cWZ0cXNzdXF1ZWVnY2h6YWpzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg2MzY5MjMsImV4cCI6MjA3NDIxMjkyM30.wpo4anjOvLFEpKS8eR7ESULLakNOj3dT-tN2OstSL0o';
-        const SERVER_URL = 'https://lms-server-btmx.onrender.com';
 
-        let supabase;
-        let allBooks = [];
-        let isAdmin = false;
+        // This ensures all HTML elements are loaded before the script tries to access them.
+        document.addEventListener('DOMContentLoaded', () => {
 
-        const bookList = document.getElementById('bookList');
-        const loadingIndicator = document.getElementById('loadingIndicator');
-        const searchInput = document.getElementById('searchInput');
-        const addBookModal = document.getElementById('addBookModal');
-        const addBookModalContent = document.getElementById('addBookModalContent');
-        const loginModal = document.getElementById('loginModal');
-        const loginForm = document.getElementById('loginForm');
-        
-        const addBookForm = document.getElementById('addBookForm');
-        const adminControls = document.getElementById('adminControls');
-        const publicHeader = document.getElementById('publicHeader');
-        const adminHeader = document.getElementById('adminHeader');
+            const SUPABASE_URL = 'https://zzqftqssuqueegchzajs.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6cWZ0cXNzdXF1ZWVnY2h6YWpzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg2MzY5MjMsImV4cCI6MjA3NDIxMjkyM30.wpo4anjOvLFEpKS8eR7ESULLakNOj3dT-tN2OstSL0o';
+            const SERVER_URL = 'https://lms-server-btmx.onrender.com';
 
-        const toast = document.getElementById('toast');
-        const toastMessage = document.getElementById('toastMessage');
+            let supabase;
+            let allBooks = [];
+            let isAdmin = false;
 
-        if (SUPABASE_URL === 'YOUR_SUPABASE_URL' || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY') {
-            loadingIndicator.innerHTML = `<div class="text-center p-8 text-yellow-400">Supabase is not configured.</div>`;
-        } else {
-            supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            fetchAndRenderBooks();
-        }
-        
-        document.getElementById('openModalBtn').addEventListener('click', () => openModal(addBookModal, addBookModalContent));
-        document.getElementById('closeAddBookModalBtn').addEventListener('click', () => closeModal(addBookModal, addBookModalContent));
-        document.getElementById('adminLoginBtn').addEventListener('click', () => loginModal.classList.remove('hidden'));
-        document.getElementById('logoutBtn').addEventListener('click', handleLogout);
-        document.getElementById('closeLoginModalBtn').addEventListener('click', () => loginModal.classList.add('hidden'));
+            const bookList = document.getElementById('bookList');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const searchInput = document.getElementById('searchInput');
+            const addBookModal = document.getElementById('addBookModal');
+            const addBookModalContent = document.getElementById('addBookModalContent');
+            const loginModal = document.getElementById('loginModal');
+            const loginForm = document.getElementById('loginForm');
+            
+            const addBookForm = document.getElementById('addBookForm');
+            const adminControls = document.getElementById('adminControls');
+            const publicHeader = document.getElementById('publicHeader');
+            const adminHeader = document.getElementById('adminHeader');
 
-        addBookForm.addEventListener('submit', handleAddBook);
-        loginForm.addEventListener('submit', handleLogin);
-        searchInput.addEventListener('input', handleSearch);
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
 
-        addBookModal.addEventListener('click', (e) => { if (e.target === addBookModal) closeModal(addBookModal, addBookModalContent); });
-        loginModal.addEventListener('click', (e) => { if (e.target === loginModal) loginModal.classList.add('hidden'); });
+            if (SUPABASE_URL === 'YOUR_SUPABASE_URL' || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY') {
+                loadingIndicator.innerHTML = `<div class="text-center p-8 text-yellow-400">Supabase is not configured.</div>`;
+            } else {
+                supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                fetchAndRenderBooks();
+            }
+            
+            document.getElementById('openModalBtn').addEventListener('click', () => openModal(addBookModal, addBookModalContent));
+            document.getElementById('closeAddBookModalBtn').addEventListener('click', () => closeModal(addBookModal, addBookModalContent));
+            document.getElementById('adminLoginBtn').addEventListener('click', () => loginModal.classList.remove('hidden'));
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+            document.getElementById('closeLoginModalBtn').addEventListener('click', () => loginModal.classList.add('hidden'));
 
-        bookList.addEventListener('click', (e) => {
-            const toggleButton = e.target.closest('.availability-toggle');
-            if (toggleButton && isAdmin) {
-                const bookId = toggleButton.dataset.bookId;
-                const currentStatus = toggleButton.dataset.currentStatus === 'true';
-                handleToggleAvailability(bookId, !currentStatus);
+            addBookForm.addEventListener('submit', handleAddBook);
+            loginForm.addEventListener('submit', handleLogin);
+            searchInput.addEventListener('input', handleSearch);
+
+            addBookModal.addEventListener('click', (e) => { if (e.target === addBookModal) closeModal(addBookModal, addBookModalContent); });
+            loginModal.addEventListener('click', (e) => { if (e.target === loginModal) loginModal.classList.add('hidden'); });
+
+            bookList.addEventListener('click', (e) => {
+                const toggleButton = e.target.closest('.availability-toggle');
+                if (toggleButton && isAdmin) {
+                    const bookId = toggleButton.dataset.bookId;
+                    const currentStatus = toggleButton.dataset.currentStatus === 'true';
+                    handleToggleAvailability(bookId, !currentStatus);
+                }
+            });
+
+            async function fetchAndRenderBooks() {
+                loadingIndicator.classList.remove('hidden');
+                bookList.innerHTML = ''; 
+                try {
+                    const { data: books, error } = await supabase.from('books').select('*').order('created_at', { ascending: false });
+                    if (error) throw error;
+                    allBooks = books;
+                    setTimeout(() => {
+                        loadingIndicator.classList.add('hidden');
+                        renderBooks(books);
+                    }, 500);
+                } catch (error) {
+                    loadingIndicator.classList.add('hidden');
+                    bookList.innerHTML = `<div class="text-center p-8 text-red-400">Failed to fetch books.</div>`;
+                }
+            }
+
+            function renderBooks(books) {
+                if (books.length === 0 && searchInput.value === '') {
+                     bookList.innerHTML = `<div class="text-center p-8 mt-10 text-gray-500">No books yet. Admin can add one!</div>`;
+                     return;
+                }
+                if (books.length === 0 && searchInput.value !== '') {
+                     bookList.innerHTML = `<div class="text-center p-8 mt-10 text-gray-500">No books match your search.</div>`;
+                     return;
+                }
+
+                const bookCards = books.map(book => `
+                    <div class="book-card bg-gray-800 rounded-xl p-4 flex items-start space-x-4 shadow-lg relative">
+                        <img src="${book.cover_image_url || 'https://placehold.co/80x120/1f2937/ffffff?text=Book'}" 
+                             onerror="this.onerror=null;this.src='https://placehold.co/80x120/1f2937/ffffff?text=Error';"
+                             alt="Cover of ${book.title}" class="w-20 h-30 object-cover rounded-md flex-shrink-0 shadow-md">
+                        <div class="flex-grow">
+                            <h3 class="font-bold text-lg text-white leading-tight pr-10">${book.title}</h3>
+                            <p class="text-gray-400 text-sm">${book.author}</p>
+                            <p class="text-gray-500 text-xs mt-2 capitalize bg-gray-700 inline-block px-2 py-1 rounded-full">${book.genre || 'No Genre'}</p>
+                            <div class="flex items-center space-x-2 mt-3">
+                                <div class="w-2.5 h-2.5 rounded-full ${book.is_available ? 'bg-green-400' : 'bg-yellow-500'}"></div>
+                                <span class="text-xs font-medium ${book.is_available ? 'text-green-400' : 'text-yellow-500'}">
+                                    ${book.is_available ? 'Available' : 'Checked Out'}
+                                </span>
+                            </div>
+                        </div>
+                        ${isAdmin ? `
+                            <button class="availability-toggle absolute top-4 right-4 p-2 rounded-full bg-gray-700 hover:bg-gray-600" data-book-id="${book.id}" data-current-status="${book.is_available}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                </svg>
+                            </button>
+                        ` : ''}
+                    </div>
+                `).join('');
+                bookList.innerHTML = bookCards;
+                document.querySelectorAll('.book-card').forEach((card, index) => {
+                    card.style.animationDelay = `${index * 80}ms`;
+                    card.classList.add('fade-in-up');
+                });
+            }
+
+            async function handleAddBook(e) {
+                e.preventDefault();
+                const submitButton = e.target.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.innerHTML = `<div class="spinner"></div> Adding...`;
+                const newBook = Object.fromEntries(new FormData(e.target));
+                try {
+                    const response = await fetch(`${SERVER_URL}/upload-book`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(newBook),
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.error || 'Server error');
+                    showToast('Book added successfully!');
+                    closeModal(addBookModal, addBookModalContent);
+                    e.target.reset(); 
+                    fetchAndRenderBooks(); 
+                } catch (error) {
+                    showToast(`Error: ${error.message}`, true);
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = 'Add Book to Library';
+                }
+            }
+
+            async function handleToggleAvailability(bookId, newStatus) {
+                const card = document.querySelector(`[data-book-id="${bookId}"]`).closest('.book-card');
+                card.style.opacity = '0.5';
+                try {
+                    const response = await fetch(`${SERVER_URL}/update-availability`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ bookId: parseInt(bookId), isAvailable: newStatus }),
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.error || 'Server error');
+                    showToast('Status updated!');
+                    fetchAndRenderBooks();
+                } catch (error) {
+                    showToast(`Error: ${error.message}`, true);
+                    card.style.opacity = '1';
+                }
+            }
+
+            function handleLogin(e) {
+                e.preventDefault();
+                const { username, password } = Object.fromEntries(new FormData(e.target));
+                // ⚠️ SECURITY WARNING: Hardcoded credentials are for demo purposes only.
+                // In a real application, you must use a proper authentication provider.
+                if (username === 'admin' && password === 'adbmsmp') {
+                    isAdmin = true;
+                    loginModal.classList.add('hidden');
+                    adminControls.classList.remove('hidden');
+                    publicHeader.classList.add('hidden');
+                    adminHeader.classList.remove('hidden');
+                    showToast('Welcome, Admin!');
+                    // Re-fetch books to ensure the admin sees the latest data and controls.
+                    fetchAndRenderBooks(); 
+                } else {
+                    showToast('Invalid credentials', true);
+                }
+            }
+
+            function handleLogout() {
+                isAdmin = false;
+                adminControls.classList.add('hidden');
+                adminHeader.classList.add('hidden');
+                publicHeader.classList.remove('hidden');
+                showToast('Logged out.');
+                renderBooks(allBooks);
+            }
+
+            function handleSearch(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const filteredBooks = allBooks.filter(book => 
+                    book.title.toLowerCase().includes(searchTerm) || 
+                    book.author.toLowerCase().includes(searchTerm)
+                );
+                renderBooks(filteredBooks);
+            }
+
+            function showToast(message, isError = false) {
+                toastMessage.textContent = message;
+                toast.className = `fixed bottom-20 left-1/2 -translate-x-1.2 p-4 rounded-lg shadow-lg text-white transition-all duration-300 toast-enter ${isError ? 'bg-red-600' : 'bg-green-600'}`;
+                setTimeout(() => {
+                    toast.classList.remove('toast-enter');
+                    toast.classList.add('toast-exit');
+                    setTimeout(() => toast.className = 'hidden', 300);
+                }, 3000);
+            }
+
+            function openModal(modalEl, contentEl) {
+                modalEl.classList.remove('hidden');
+                setTimeout(() => contentEl.classList.remove('translate-y-full'), 10);
+            }
+
+            function closeModal(modalEl, contentEl) {
+                contentEl.classList.add('translate-y-full');
+                setTimeout(() => modalEl.classList.add('hidden'), 300);
             }
         });
-
-        async function fetchAndRenderBooks() {
-            loadingIndicator.classList.remove('hidden');
-            bookList.innerHTML = ''; 
-            try {
-                const { data: books, error } = await supabase.from('books').select('*').order('created_at', { ascending: false });
-                if (error) throw error;
-                allBooks = books;
-                setTimeout(() => {
-                    loadingIndicator.classList.add('hidden');
-                    renderBooks(books);
-                }, 500);
-            } catch (error) {
-                loadingIndicator.classList.add('hidden');
-                bookList.innerHTML = `<div class="text-center p-8 text-red-400">Failed to fetch books.</div>`;
-            }
-        }
-
-        function renderBooks(books) {
-            if (books.length === 0 && searchInput.value === '') {
-                 bookList.innerHTML = `<div class="text-center p-8 mt-10 text-gray-500">No books yet. Admin can add one!</div>`;
-                 return;
-            }
-            if (books.length === 0 && searchInput.value !== '') {
-                 bookList.innerHTML = `<div class="text-center p-8 mt-10 text-gray-500">No books match your search.</div>`;
-                 return;
-            }
-
-            const bookCards = books.map(book => `
-                <div class="book-card bg-gray-800 rounded-xl p-4 flex items-start space-x-4 shadow-lg relative">
-                    <img src="${book.cover_image_url || 'https://placehold.co/80x120/1f2937/ffffff?text=Book'}" 
-                         onerror="this.onerror=null;this.src='https://placehold.co/80x120/1f2937/ffffff?text=Error';"
-                         alt="Cover of ${book.title}" class="w-20 h-30 object-cover rounded-md flex-shrink-0 shadow-md">
-                    <div class="flex-grow">
-                        <h3 class="font-bold text-lg text-white leading-tight pr-10">${book.title}</h3>
-                        <p class="text-gray-400 text-sm">${book.author}</p>
-                        <p class="text-gray-500 text-xs mt-2 capitalize bg-gray-700 inline-block px-2 py-1 rounded-full">${book.genre || 'No Genre'}</p>
-                        <div class="flex items-center space-x-2 mt-3">
-                            <div class="w-2.5 h-2.5 rounded-full ${book.is_available ? 'bg-green-400' : 'bg-yellow-500'}"></div>
-                            <span class="text-xs font-medium ${book.is_available ? 'text-green-400' : 'text-yellow-500'}">
-                                ${book.is_available ? 'Available' : 'Checked Out'}
-                            </span>
-                        </div>
-                    </div>
-                    ${isAdmin ? `
-                        <button class="availability-toggle absolute top-4 right-4 p-2 rounded-full bg-gray-700 hover:bg-gray-600" data-book-id="${book.id}" data-current-status="${book.is_available}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                            </svg>
-                        </button>
-                    ` : ''}
-                </div>
-            `).join('');
-            bookList.innerHTML = bookCards;
-            document.querySelectorAll('.book-card').forEach((card, index) => {
-                card.style.animationDelay = `${index * 80}ms`;
-                card.classList.add('fade-in-up');
-            });
-        }
-
-        async function handleAddBook(e) {
-            e.preventDefault();
-            const submitButton = e.target.querySelector('button[type="submit"]');
-            submitButton.disabled = true;
-            submitButton.innerHTML = `<div class="spinner"></div> Adding...`;
-            const newBook = Object.fromEntries(new FormData(e.target));
-            try {
-                const response = await fetch(`${SERVER_URL}/upload-book`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newBook),
-                });
-                const result = await response.json();
-                if (!response.ok) throw new Error(result.error || 'Server error');
-                showToast('Book added successfully!');
-                closeModal(addBookModal, addBookModalContent);
-                e.target.reset(); 
-                fetchAndRenderBooks(); 
-            } catch (error) {
-                showToast(`Error: ${error.message}`, true);
-            } finally {
-                submitButton.disabled = false;
-                submitButton.innerHTML = 'Add Book to Library';
-            }
-        }
-
-        async function handleToggleAvailability(bookId, newStatus) {
-            const card = document.querySelector(`[data-book-id="${bookId}"]`).closest('.book-card');
-            card.style.opacity = '0.5';
-            try {
-                const response = await fetch(`${SERVER_URL}/update-availability`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ bookId: parseInt(bookId), isAvailable: newStatus }),
-                });
-                const result = await response.json();
-                if (!response.ok) throw new Error(result.error || 'Server error');
-                showToast('Status updated!');
-                fetchAndRenderBooks();
-            } catch (error) {
-                showToast(`Error: ${error.message}`, true);
-                card.style.opacity = '1';
-            }
-        }
-
-        function handleLogin(e) {
-            e.preventDefault();
-            const { username, password } = Object.fromEntries(new FormData(e.target));
-            if (username === 'admin' && password === 'adbmsmp') {
-                isAdmin = true;
-                loginModal.classList.add('hidden');
-                adminControls.classList.remove('hidden');
-                publicHeader.classList.add('hidden');
-                adminHeader.classList.remove('hidden');
-                showToast('Welcome, Admin!');
-                renderBooks(allBooks); 
-            } else {
-                showToast('Invalid credentials', true);
-            }
-        }
-
-        function handleLogout() {
-            isAdmin = false;
-            adminControls.classList.add('hidden');
-            adminHeader.classList.add('hidden');
-            publicHeader.classList.remove('hidden');
-            showToast('Logged out.');
-            renderBooks(allBooks);
-        }
-
-        function handleSearch(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const filteredBooks = allBooks.filter(book => 
-                book.title.toLowerCase().includes(searchTerm) || 
-                book.author.toLowerCase().includes(searchTerm)
-            );
-            renderBooks(filteredBooks);
-        }
-
-        function showToast(message, isError = false) {
-            toastMessage.textContent = message;
-            toast.className = `fixed bottom-20 left-1/2 -translate-x-1/2 p-4 rounded-lg shadow-lg text-white transition-all duration-300 toast-enter ${isError ? 'bg-red-600' : 'bg-green-600'}`;
-            setTimeout(() => {
-                toast.classList.remove('toast-enter');
-                toast.classList.add('toast-exit');
-                setTimeout(() => toast.className = 'hidden', 300);
-            }, 3000);
-        }
-
-        function openModal(modalEl, contentEl) {
-            modalEl.classList.remove('hidden');
-            setTimeout(() => contentEl.classList.remove('translate-y-full'), 10);
-        }
-
-        function closeModal(modalEl, contentEl) {
-            contentEl.classList.add('translate-y-full');
-            setTimeout(() => modalEl.classList.add('hidden'), 300);
-        }
     </script>
     <style>
         body { font-family: 'Inter', sans-serif; overscroll-behavior-y: contain; }
         .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; display: inline-block; margin-right: 8px; }
-        @keyframes spin { to { transform: rotate(30deg); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
         .fade-in-up { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.5s ease-out forwards; }
         @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
         .toast-enter { opacity: 0; transform: translate(-50%, 10px); }
@@ -308,4 +316,3 @@
     <script>if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/service-worker.js'); }); }</script>
 </body>
 </html>
-
