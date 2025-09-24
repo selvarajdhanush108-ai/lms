@@ -1,0 +1,22 @@
+{
+  "name": "Library Hub",
+  "short_name": "Lib Hub",
+  "description": "A progressive web app for managing a library.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#111827",
+  "icons": [
+    {
+      "src": "assets/LibHub.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/LibHub.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
